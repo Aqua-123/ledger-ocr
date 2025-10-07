@@ -1,38 +1,46 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
-import { Upload, X, FileText, Image as ImageIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { validateFileType, formatFileSize } from '@/lib/ocr-api';
+import { useCallback, useState } from "react";
+import { useDropzone } from "react-dropzone";
+import { Upload, X, FileText, Image as ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { validateFileType, formatFileSize } from "@/lib/ocr-api";
 
 interface FileUploadProps {
   onFileSelect: (file: File) => void;
   isProcessing?: boolean;
 }
 
-export function FileUpload({ onFileSelect, isProcessing = false }: FileUploadProps) {
+export function FileUpload({
+  onFileSelect,
+  isProcessing = false,
+}: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const onDrop = useCallback((acceptedFiles: File[]) => {
-    const file = acceptedFiles[0];
-    if (file && validateFileType(file)) {
-      setSelectedFile(file);
-      onFileSelect(file);
-    } else {
-      alert('Please select a valid PDF or image file (JPEG, PNG, WebP, GIF, BMP, TIFF)');
-    }
-  }, [onFileSelect]);
+  const onDrop = useCallback(
+    (acceptedFiles: File[]) => {
+      const file = acceptedFiles[0];
+      if (file && validateFileType(file)) {
+        setSelectedFile(file);
+        onFileSelect(file);
+      } else {
+        alert(
+          "Please select a valid PDF or image file (JPEG, PNG, WebP, GIF, BMP, TIFF)"
+        );
+      }
+    },
+    [onFileSelect]
+  );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: {
-      'application/pdf': ['.pdf'],
-      'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif', '.bmp', '.tiff']
+      "application/pdf": [".pdf"],
+      "image/*": [".jpeg", ".jpg", ".png", ".webp", ".gif", ".bmp", ".tiff"],
     },
     multiple: false,
-    disabled: isProcessing
+    disabled: isProcessing,
   });
 
   const clearFile = () => {
@@ -40,7 +48,7 @@ export function FileUpload({ onFileSelect, isProcessing = false }: FileUploadPro
   };
 
   const getFileIcon = (file: File) => {
-    if (file.type === 'application/pdf') {
+    if (file.type === "application/pdf") {
       return <FileText className="h-8 w-8 text-red-500" />;
     }
     return <ImageIcon className="h-8 w-8 text-blue-500" />;
@@ -63,17 +71,18 @@ export function FileUpload({ onFileSelect, isProcessing = false }: FileUploadPro
             {...getRootProps()}
             className={`
               border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors
-              ${isDragActive 
-                ? 'border-primary bg-primary/5' 
-                : 'border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-primary/5'
+              ${
+                isDragActive
+                  ? "border-primary bg-primary/5"
+                  : "border-gray-300 dark:border-gray-600 hover:border-primary hover:bg-primary/5"
               }
-              ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}
+              ${isProcessing ? "opacity-50 cursor-not-allowed" : ""}
             `}
           >
             <input {...getInputProps()} />
             <Upload className="mx-auto h-12 w-12 text-gray-400" />
             <p className="mt-4 text-lg font-medium text-gray-900 dark:text-gray-100">
-              {isDragActive ? 'Drop the file here' : 'Drag & drop a file here'}
+              {isDragActive ? "Drop the file here" : "Drag & drop a file here"}
             </p>
             <p className="mt-2 text-gray-600 dark:text-gray-400">
               or click to select a file

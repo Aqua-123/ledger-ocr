@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
     ocrFormData.append("return_middle_json", "false");
     ocrFormData.append("return_model_output", "false");
     ocrFormData.append("return_md", "true");
-    ocrFormData.append("return_images", "false");
+    ocrFormData.append("return_images", "true");
     ocrFormData.append("end_page_id", "99999");
     ocrFormData.append("parse_method", "auto");
     ocrFormData.append("start_page_id", "0");
