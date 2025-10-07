@@ -4,6 +4,9 @@ export interface OCRResponse {
   results: {
     [filename: string]: {
       md_content: string;
+      images?: {
+        [imageName: string]: string; // base64 encoded image data
+      };
     };
   };
 }

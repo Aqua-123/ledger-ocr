@@ -79,6 +79,36 @@ export function MarkdownRenderer({ data }: MarkdownRendererProps) {
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
+                    img: ({ src, alt, ...props }) => {
+                      // Handle image references like "images/hash.jpg"
+                      if (src && typeof src === 'string' && src.startsWith('images/')) {
+                        const imageName = src.replace('images/', '');
+                        const base64Data = result.images?.[imageName];
+                        
+                        if (base64Data) {
+                          return (
+                            <img
+                              src={base64Data}
+                              alt={alt || 'OCR Image'}
+                              className="max-w-full h-auto rounded-lg shadow-md my-4"
+                              loading="lazy"
+                              {...props}
+                            />
+                          );
+                        }
+                      }
+                      
+                      // Fallback for other image sources
+                      return (
+                        <img
+                          src={typeof src === 'string' ? src : ''}
+                          alt={alt || 'Image'}
+                          className="max-w-full h-auto rounded-lg shadow-md my-4"
+                          loading="lazy"
+                          {...props}
+                        />
+                      );
+                    },
                     table: ({ children, ...props }) => (
                       <div className="overflow-x-auto w-full">
                         <table
