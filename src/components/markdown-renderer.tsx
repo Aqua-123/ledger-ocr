@@ -44,6 +44,49 @@ export function MarkdownRenderer({ data }: MarkdownRendererProps) {
 
       {Object.entries(data.results).map(([filename, result]) => {
         const mdContent = result.md_content;
+        const images = result.images || {};
+
+        // Create custom components with access to images data
+        const createImageComponent = (imagesData: {
+          [key: string]: string;
+        }) => {
+          return ({ src, alt, ...props }: any) => {
+            console.log("Image component called with src:", src);
+            console.log("Available images:", Object.keys(imagesData));
+
+            // Handle image references like "images/hash.jpg"
+            if (src && typeof src === "string" && src.startsWith("images/")) {
+              const imageName = src.replace("images/", "");
+              console.log("Looking for image:", imageName);
+              const base64Data = imagesData[imageName];
+              console.log("Found base64Data:", base64Data ? "YES" : "NO");
+
+              if (base64Data) {
+                return (
+                  <img
+                    src={base64Data}
+                    alt={alt || "OCR Image"}
+                    className="max-w-full h-auto rounded-lg shadow-md my-4"
+                    loading="lazy"
+                    {...props}
+                  />
+                );
+              }
+            }
+
+            // Fallback for other image sources
+            console.log("Using fallback for src:", src);
+            return (
+              <img
+                src={typeof src === "string" ? src : ""}
+                alt={alt || "Image"}
+                className="max-w-full h-auto rounded-lg shadow-md my-4"
+                loading="lazy"
+                {...props}
+              />
+            );
+          };
+        };
 
         return (
           <Card key={filename} className="p-6">
@@ -79,36 +122,7 @@ export function MarkdownRenderer({ data }: MarkdownRendererProps) {
                   remarkPlugins={[remarkGfm]}
                   rehypePlugins={[rehypeRaw]}
                   components={{
-                    img: ({ src, alt, ...props }) => {
-                      // Handle image references like "images/hash.jpg"
-                      if (src && typeof src === 'string' && src.startsWith('images/')) {
-                        const imageName = src.replace('images/', '');
-                        const base64Data = result.images?.[imageName];
-                        
-                        if (base64Data) {
-                          return (
-                            <img
-                              src={base64Data}
-                              alt={alt || 'OCR Image'}
-                              className="max-w-full h-auto rounded-lg shadow-md my-4"
-                              loading="lazy"
-                              {...props}
-                            />
-                          );
-                        }
-                      }
-                      
-                      // Fallback for other image sources
-                      return (
-                        <img
-                          src={typeof src === 'string' ? src : ''}
-                          alt={alt || 'Image'}
-                          className="max-w-full h-auto rounded-lg shadow-md my-4"
-                          loading="lazy"
-                          {...props}
-                        />
-                      );
-                    },
+                    img: createImageComponent(images),
                     table: ({ children, ...props }) => (
                       <div className="overflow-x-auto w-full">
                         <table
