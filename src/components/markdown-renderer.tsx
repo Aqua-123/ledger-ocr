@@ -51,15 +51,10 @@ export function MarkdownRenderer({ data }: MarkdownRendererProps) {
           [key: string]: string;
         }) => {
           return ({ src, alt, ...props }: any) => {
-            console.log("Image component called with src:", src);
-            console.log("Available images:", Object.keys(imagesData));
-
             // Handle image references like "images/hash.jpg"
             if (src && typeof src === "string" && src.startsWith("images/")) {
               const imageName = src.replace("images/", "");
-              console.log("Looking for image:", imageName);
               const base64Data = imagesData[imageName];
-              console.log("Found base64Data:", base64Data ? "YES" : "NO");
 
               if (base64Data) {
                 return (
@@ -75,7 +70,6 @@ export function MarkdownRenderer({ data }: MarkdownRendererProps) {
             }
 
             // Fallback for other image sources
-            console.log("Using fallback for src:", src);
             return (
               <img
                 src={typeof src === "string" ? src : ""}
