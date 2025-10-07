@@ -42,7 +42,7 @@ Processes a document file and extracts text, tables, and images using advanced O
 #### File Size Limits
 
 - Maximum file size: 4.5 MB
-- Files larger than 4.5 MB will be rejected with a 400 error
+- Files larger than 4.5 MB will be rejected with a 410 error
 
 ## Response Format
 
@@ -89,7 +89,7 @@ Processes a document file and extracts text, tables, and images using advanced O
 
 ### Error Response
 
-**Status Codes:** `400`, `500`
+**Status Codes:** `400`, `410`, `500`
 
 ```json
 {
@@ -105,7 +105,7 @@ Processes a document file and extracts text, tables, and images using advanced O
 | ------ | --------------------- | ------------------------------------------- |
 | 400    | No file provided      | Request missing the required file parameter |
 | 400    | Invalid file type     | Uploaded file type is not supported         |
-| 400    | File too large        | File exceeds the 4.5 MB size limit          |
+| 410    | File too large        | File exceeds the 4.5 MB size limit          |
 | 500    | OCR processing failed | External OCR service encountered an error   |
 | 500    | Internal server error | Unexpected server error during processing   |
 
@@ -125,6 +125,9 @@ async function processDocument(file) {
     });
 
     if (!response.ok) {
+      if (response.status === 410) {
+        throw new Error("File is too large. Maximum size is 4.5 MB.");
+      }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -240,72 +243,3 @@ function renderMarkdownWithImages(mdContent, images) {
   return processedContent;
 }
 ```
-
-## Processing Options
-
-The API automatically configures optimal settings for document processing:
-
-- **Language Detection**: Automatic (primarily English)
-- **Table Recognition**: Enabled
-- **Formula Recognition**: Enabled
-- **Parse Method**: Automatic detection
-- **Page Range**: All pages (0 to 99999)
-- **Output Format**: Markdown with embedded images
-
-## Rate Limits
-
-Currently, no rate limits are enforced, but we recommend:
-
-- Maximum 10 concurrent requests per client
-- Allow 30+ seconds for complex document processing
-- Implement retry logic with exponential backoff
-
-## Best Practices
-
-### File Optimization
-
-1. **PDF Quality**: Use high-resolution PDFs for better OCR accuracy
-2. **Image Format**: PNG and JPEG provide best results
-3. **File Size**: Keep files under 4.5 MB limit; compress large PDFs before uploading
-
-### Error Handling
-
-1. **Implement Timeouts**: Set appropriate request timeouts (60+ seconds)
-2. **Retry Logic**: Implement exponential backoff for temporary failures
-3. **Validation**: Validate file type and ensure file size is under 4.5 MB before uploading
-
-### Performance
-
-1. **Async Processing**: Use async/await patterns for non-blocking operations
-2. **Progress Indicators**: Show upload and processing progress to users
-3. **Result Caching**: Cache results for identical documents
-
-## Troubleshooting
-
-### Common Issues
-
-1. **"No file provided"**: Ensure the file parameter is included in the form data
-2. **"Invalid file type"**: Check that your file type is in the supported list
-3. **"File too large"**: Compress your file to under 4.5 MB before uploading
-4. **Processing timeout**: Large or complex documents may take longer to process
-
-### Debug Information
-
-Enable debug logging in your application to track:
-
-- File upload success
-- API response times
-- Error details and stack traces
-
-## Support
-
-For technical support or feature requests, please contact the development team or create an issue in the project repository.
-
-## Changelog
-
-### Version 0.1.0
-
-- Initial API release
-- Support for PDF and image files
-- Markdown output with embedded images
-- Automatic table and formula recognition
